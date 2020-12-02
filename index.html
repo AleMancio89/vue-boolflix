@@ -10,7 +10,26 @@
 </head>
 <body>
 
-    <div id="root">
+    <div id="root" class="container">
+        <div class="navbar">
+            <img src="img/Netflix-logo.png" alt="">
+            <div action="">
+                <input type="text" v-model="inputUser" @keyup.enter="call">
+                <button @click="call" >Cerca</button>
+            </div>                     
+        </div>
+
+        <div class="card-list">
+            <ul>
+                <li class="card" v-for="film in films">
+                    <h1>{{ film.title }}</h1>
+                    <img alt="">
+                    <p>{{ film.original_title }}</p>
+                    <p>{{ film.original_language }}</p>
+                    <p>{{ film.vote_average }}</p>
+                </li>
+            </ul>
+        </div>
     </div>
     
 
