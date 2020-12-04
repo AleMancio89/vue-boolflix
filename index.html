@@ -4,33 +4,89 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Boolflix</title>
+    <link rel="preconnect" href="https://fonts.gstatic.com">
+    <link rel="shortcut icon" href="img/favicon.jpg" />
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />    
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-
+    
     <div id="root" class="container">
         <div class="navbar">
             <img src="img/Netflix-logo.png" alt="">
-            <div action="">
-                <input type="text" v-model="inputUser" @keyup.enter="call">
-                <button @click="call" >Cerca</button>
+            <div class="search">
+                <input type="text" v-model="inputUser" @keyup.enter="search" placeholder="Cerca...">
+                <button @click="search"><i class="fas fa-search"></i></button>
             </div>                     
         </div>
-
-        <div class="card-list">
+        
+        <div class="card-list movie">
+            <h1 v-if="films != ''">Film</h1>
             <ul>
-                <li class="card" v-for="film in films">
-                    <h1>{{ film.title }}</h1>
-                    <img alt="">
-                    <p>{{ film.original_title }}</p>
-                    <p>{{ film.original_language }}</p>
-                    <p>{{ film.vote_average }}</p>
+                <li class="card" v-for="film in films">                    
+                    <div class="info">
+                        <!-- Display languages flag or error 404 if not present-->
+                        <div class="flag">
+                            <img v-if="flags.includes(film.original_language)":src="showFlag(film.original_language)" alt="flag"></img>
+                            <img v-else src="img/flags/error.svg" alt="flag"></img>
+                        </div>
+                        <div class="text">
+                            <p><span>Title: </span>{{ film.title }}</p>
+                            <p><span>Original Title: </span>{{ film.original_title }}</p>
+                            <!-- Convert vote_average in stars (base on max 5) -->
+                            <div class="starVote">
+                                <span>Rating: </span>
+                                <span id="stars" v-for="star in maxStarVote">
+                                    <i class="fas fa-star" v-if="star < roundVote(film.vote_average)"></i>
+                                    <i class="far fa-star" v-else></i>
+                                </span>
+                            </div>
+                            <p v-if="film.overview != ''"><span>Overview: </span>{{ film.overview }}</p>   
+                        </div>    
+                    </div>
+
+                    <div class="image">
+                        <img v-on:error="handleImgNull" :src="imgConfig.base_url+imgConfig.poster_sizes[3]+film.poster_path" alt="locandina film">
+                    </div>
                 </li>
             </ul>
         </div>
+        <div class="card-list tvSeries">
+            <h1 v-if="tvSeries != ''">Tv Series</h1>
+            <ul>
+                <li class="card" v-for="serie in tvSeries">                    
+                    <div class="info">
+                        <!-- Display languages flag or error 404 if not present-->
+                        <div class="flag">
+                            <img v-if="flags.includes(serie.original_language)":src="showFlag(serie.original_language)" alt="flag"></img>
+                            <img v-else src="img/flags/error.svg" alt="flag"></img>
+                        </div>
+                        <div class="text">
+                            <p><span>Title: </span>{{ serie.name}}</p>
+                            <p><span>Original Title: </span>{{ serie.original_name }}</p>
+                            <!-- Convert vote_average in stars (base on max 5) -->
+                            <div class="starVote">
+                                <span>Rating: </span>
+                                <span id="stars" v-for="star in maxStarVote">
+                                    <i class="fas fa-star" v-if="star < roundVote(serie.vote_average)"></i>
+                                    <i class="far fa-star" v-else></i>
+                                </span>
+                            </div>
+                            <p v-if="serie.overview != ''"><span>Overview: </span>{{ serie.overview }}</p>   
+                        </div>    
+                    </div>
+
+                    <div class="image">
+                        <img v-on:error="handleImgNull" :src="imgConfig.base_url+imgConfig.poster_sizes[3]+serie.poster_path" alt="locandina tvSeries">
+                    </div>
+                </li>
+            </ul> 
+        </div>
     </div>
+    
     
 
     <script src="js/main.js"></script>

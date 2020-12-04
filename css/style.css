@@ -2,10 +2,26 @@
     margin: 0;
     padding: 0;
     box-sizing: border-box;
+    font-family: 'Roboto', sans-serif;
 }
 
 body{
     background-color: black;
+}
+
+::-webkit-scrollbar {
+    height: 5px;
+    width: 5px;
+}
+
+::-webkit-scrollbar-track {
+    box-shadow: inset 0 0 5px grey; 
+    border-radius: 10px;
+}
+ 
+::-webkit-scrollbar-thumb {
+    background: #b30000;  
+    border-radius: 10px;
 }
 
 .container{
@@ -13,6 +29,7 @@ body{
     flex-direction: column;
     margin:auto;
     height: 100vh;
+    overflow: auto;
 }
 
 .navbar{
@@ -28,31 +45,131 @@ body{
     height: 80px;
 }
 
-form{
+.search{
     display: flex;
 }
 
+.search > *{
+    height: 40px;
+    border-color: red;
+    border: 2px solid red;
+    background-color: black;
+    color: white;
+    outline: none;
+}
+
+.search input{
+    border-radius: 20px;
+    padding: 0 10px;
+    margin-right: 5px;
+}
+
+.search button{
+    border-radius: 50%;
+    width: 40px;
+    font-size: 1.5rem;
+}
+
+.search button:active{
+    transform: scale(0.9);
+}
+
+button{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+button i{
+    font-size: 1.1rem ;
+}
+
+.search input::placeholder{
+    color: white;
+}
+
 .card-list{
-   padding: 0 40px;
+    margin-top: 40px;
+    width: 80%;
+    margin: auto;
+    margin-top: 25px;
+    margin-bottom: 25px;
 }
 
 .card-list ul{
     display: flex;
-    flex-flow: row wrap;
+    flex-flow: row nowrap;
+    justify-content: flex-start;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.card-list h1{
+    color: red;
+    font-style: italic;
 }
 
 .card{
-    text-align: center;
     list-style: none;
-    height: 360px;
-    flex-basis: calc(100% / 4 - 40px);
-    margin-left: 20px;
-    margin-right: 20px;
-    margin-bottom: 20px;
-    border: 1px solid red;
+    margin-top: 20px;
+    margin-right: 2px;
+    margin-bottom: 5px;
+    border-radius: 10px;
     color: white;
+    position: relative;
+    font-size: 0.8rem;    
 }
 
-.card img{
-    height: 100px;
+.card .info img{
+    height: 50px;
+
+}
+
+.card .info p > span, .starVote span:first-child{
+    font-weight: bold;
+    color: red;
+}
+
+#stars{
+    color: #FEBC00;
+}
+
+.card .image{
+    position: absolute;
+    top: 0;
+}
+
+.card > div{
+    height:350px;
+    width: 250px;
+}
+
+.card .image img{
+    width: 100%;
+    height: 100%;
+}
+
+.card .info:hover{
+    opacity: 0.9;
+    background-color: black;
+}
+
+.card .info{
+    position: relative;
+    z-index: 1;
+    transition: 0.2s;
+    overflow: hidden;
+    overflow-y: auto;
+    padding: 10px;
+    display:flex;
+    flex-flow: column nowrap;
+    opacity: 0;
+}
+
+.info .flag{
+    align-self: flex-end;
+}
+
+.info .text{
+    flex-flow: column nowrap;
 }
