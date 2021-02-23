@@ -6,36 +6,51 @@
     <title>Boolflix</title>
     <link rel="preconnect" href="https://fonts.gstatic.com">
     <link rel="shortcut icon" href="img/favicon.jpg" />
-    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet"> 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />    
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.1/css/all.min.css" integrity="sha512-+4zCK9k+qNFUR5X+cKL9EIR+ZOhtIloNl9GIKS57V1MyNsYpYcUrUeQc9vNfzsWfV28IaLL3i96P9sdNyeRssA==" crossorigin="anonymous" />
     <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
     <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
-    
+
     <div id="root" class="container">
         <div class="navbar">
-            <img src="img/Netflix-logo.png" alt="">
+            <div class="nav-left">
+                <img src="img/Netflix-logo.png" alt="">
+                <ul class="menuSection">
+                    <li @click="selectSection(section)" v-for="section in menuSections" >
+                        <a href="#" :class="{active : selectedSection == section}" >{{ section }}</a>
+                    </li>
+                </ul>
+            </div>
             <div class="search">
                 <input type="text" v-model="inputUser" @keyup.enter="search" placeholder="Cerca...">
                 <button @click="search"><i class="fas fa-search"></i></button>
-            </div>                     
+            </div>
         </div>
-        
-        <div class="card-list movie">
-            <h1 v-if="films != ''">Film</h1>
+
+        <div class="card-list">
+            <!-- Handle h3 title for search and empty my list -->
+            <h3 v-if="selectedSection === ''">Risultati per:  "  {{searchParam}}  "</h3>
+            <h3 v-if="selectedSection === 'Preferiti' && myList.length == 0">Nessun risultato salvato nei {{selectedSection}}</h3>
             <ul>
-                <li class="card" v-for="film in films">                    
+                <li class="card" v-for="film in videoTitles">
                     <div class="info">
-                        <!-- Display languages flag or error 404 if not present-->
+                        <!-- Display full heart or empty heart for favouites and languages flag or error 404 if not present-->
                         <div class="flag">
-                            <img v-if="flags.includes(film.original_language)":src="showFlag(film.original_language)" alt="flag"></img>
-                            <img v-else src="img/flags/error.svg" alt="flag"></img>
+                            <span v-if="isPresent(film, myList)" @click="addOrRemoveToMyList(film, myList)" title="Rimuovi da preferiti"><i class="fas fa-heart"></i></span>
+                            <span v-else @click="addOrRemoveToMyList(film, myList)" title="Aggiungi a preferiti"><i class="far fa-heart" ></i></span>
+                            <img v-if="flags.includes(film.original_language)":src="showFlag(film.original_language)" alt="flag">
+                            <img v-else src="img/flags/error-404.svg" alt="flag">
                         </div>
                         <div class="text">
-                            <p><span>Title: </span>{{ film.title }}</p>
-                            <p><span>Original Title: </span>{{ film.original_title }}</p>
+                            <!-- Show title for film or tvSeries -->
+                            <p v-if="film.title"><span>Titolo: </span>{{film.title}}</p>
+                            <p v-else><span>Titolo: </span>{{film.name}}</p>
+                            <!-- Show original title/original name if != from title/name -->
+                            <p v-if="film.original_title && film.title != film.original_title"><span>Titolo originale: </span>{{film.original_title}}</p>
+                            <p v-else-if="film.original_title == undefined && film.original_name != film.name"><span>Titolo originale: </span>{{film.original_name}}</p>
                             <!-- Convert vote_average in stars (base on max 5) -->
                             <div class="starVote">
                                 <span>Rating: </span>
@@ -44,8 +59,8 @@
                                     <i class="far fa-star" v-else></i>
                                 </span>
                             </div>
-                            <p v-if="film.overview != ''"><span>Overview: </span>{{ film.overview }}</p>   
-                        </div>    
+                            <p v-if="film.overview != ''"><span>Trama: </span>{{ film.overview }}</p>
+                        </div>
                     </div>
 
                     <div class="image">
@@ -54,40 +69,10 @@
                 </li>
             </ul>
         </div>
-        <div class="card-list tvSeries">
-            <h1 v-if="tvSeries != ''">Tv Series</h1>
-            <ul>
-                <li class="card" v-for="serie in tvSeries">                    
-                    <div class="info">
-                        <!-- Display languages flag or error 404 if not present-->
-                        <div class="flag">
-                            <img v-if="flags.includes(serie.original_language)":src="showFlag(serie.original_language)" alt="flag"></img>
-                            <img v-else src="img/flags/error.svg" alt="flag"></img>
-                        </div>
-                        <div class="text">
-                            <p><span>Title: </span>{{ serie.name}}</p>
-                            <p><span>Original Title: </span>{{ serie.original_name }}</p>
-                            <!-- Convert vote_average in stars (base on max 5) -->
-                            <div class="starVote">
-                                <span>Rating: </span>
-                                <span id="stars" v-for="star in maxStarVote">
-                                    <i class="fas fa-star" v-if="star < roundVote(serie.vote_average)"></i>
-                                    <i class="far fa-star" v-else></i>
-                                </span>
-                            </div>
-                            <p v-if="serie.overview != ''"><span>Overview: </span>{{ serie.overview }}</p>   
-                        </div>    
-                    </div>
 
-                    <div class="image">
-                        <img v-on:error="handleImgNull" :src="imgConfig.base_url+imgConfig.poster_sizes[3]+serie.poster_path" alt="locandina tvSeries">
-                    </div>
-                </li>
-            </ul> 
-        </div>
     </div>
-    
-    
+
+
 
     <script src="js/main.js"></script>
 </body>
