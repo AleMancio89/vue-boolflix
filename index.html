@@ -70,6 +70,12 @@
             </ul>
         </div>
 
+        <div v-if="selectedSection != 'Preferiti' && selectedSection != '' "class="paginator centering">
+            <!-- Switch page -->
+            <div class="previous centering" @click="prevPage(selectedSection)"><i class="fas fa-arrow-left"></i></div>
+            <div class="page centering">{{currentPage}}</div>
+            <div class="next centering" @click="nextPage(selectedSection)"><i class="fas fa-arrow-right"></i></div>
+        </div>
     </div>
 
 

@@ -4,7 +4,7 @@ Riprodurre un'interfaccia stile Netflix utilizando Vue
 
 const API_KEY = 'a03a9596122b7a930963fc97f1e3e35d';
 const MAX_STAR_VOTE = 5;
-const flagsPath = ["en", "es", "fr", "it", "de", "ja", "nl", "pt", "ru",];
+const FLAGS_PATH = ["en", "es", "fr", "it", "de", "ja", "nl", "pt", "ru",];
 
 const app = new Vue({
     el: '#root',
@@ -13,12 +13,14 @@ const app = new Vue({
         language: 'it',
         menuSections:['Home', 'Film', 'Serie Tv', 'Più popolari', 'Preferiti'],
         selectedSection:'Home',
-        flags: [...flagsPath],
+        flags: [...FLAGS_PATH],
         videoTitles: [],
         maxStarVote: MAX_STAR_VOTE,
         myList: [],
         inputUser:'',
-        searchParam: ''
+        searchParam: '',
+        currentPage: 1,
+        totalPages: 0
     },
     methods: {
         //Search both movies and Tv Series
@@ -47,40 +49,57 @@ const app = new Vue({
         searchTvPopular(){
             axios.get('https://api.themoviedb.org/3/tv/popular', { params: {
                 'api_key' : API_KEY,
-                language: this.language
+                language: this.language,
+                page: this.currentPage
             }
-            }).then(element => this.videoTitles = element.data.results);
+            }).then(element => {
+                this.videoTitles = element.data.results;
+                this.totalPages = element.data.total_pages;
+            });
         },
         //Search movie top rated and save in videoTitles
         searchMoviePopular(){
             axios.get('https://api.themoviedb.org/3/movie/popular', { params: {
                 'api_key' : API_KEY,
-                language: this.language
+                language: this.language,
+                page: this.currentPage
             }
-            }).then(element => this.videoTitles = element.data.results);
+            }).then(element => {
+                this.videoTitles = element.data.results;
+                this.totalPages = element.data.total_pages;
+            });
         },
         //Search movie & tv most popular and save in videoTitles
         searchTvAndMoviesMostPopular(){
             axios.get('https://api.themoviedb.org/3/movie/popular', { params: {
                 'api_key' : API_KEY,
-                language: this.language
+                language: this.language,
+                page: this.currentPage
             }
             }).then(element => this.videoTitles = element.data.results );
 
             axios.get('https://api.themoviedb.org/3/tv/popular', { params: {
                 'api_key' : API_KEY,
-                language: this.language
+                language: this.language,
+                page: this.currentPage
             }
-            }).then(element => this.videoTitles = [...this.videoTitles, ...element.data.results] );
+            }).then(element => {
+                this.videoTitles = [...this.videoTitles, ...element.data.results];
+                this.totalPages = element.data.total_pages
+            });
 
         },
         //
         searchDailyTrending(){
             axios.get('https://api.themoviedb.org/3/trending/all/day', { params: {
                 'api_key' : API_KEY,
-                language: this.language
+                language: this.language,
+                page: this.currentPage
             }
-            }).then(element => this.videoTitles = element.data.results);
+            }).then(element => {
+                this.videoTitles = element.data.results;
+                this.totalPages = element.data.total_pages;
+                });
         },
         //Round vote from 1/10 to 1/5
         roundVote(num) {
@@ -133,6 +152,22 @@ const app = new Vue({
                 this.myList.push(e);
             }
         },
+        //Next page in pagination
+        nextPage(section){
+            if(this.currentPage === this.totalPages){
+                return
+            }
+            this.currentPage++;
+            this.selectSection(section);
+        },
+        //Prev page in pagination
+        prevPage(section){
+            if(this.currentPage === 1){
+                return
+            }
+            this.currentPage--;
+            this.selectSection(section);
+        },
     },
     mounted: function() {
         //Call the config and save it in imgConfig[]
@@ -143,6 +178,4 @@ const app = new Vue({
 
         this.searchDailyTrending();
     },
-
-
 });

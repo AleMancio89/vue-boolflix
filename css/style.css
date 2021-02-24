@@ -218,3 +218,41 @@ button i{
 .info .text{
     flex-flow: column nowrap;
 }
+
+.centering{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.paginator{
+    display: flex;
+    margin-bottom: 20px;
+}
+
+.page{
+    color:#b30000;
+    height: 2.5rem;
+    width: 2.5rem;
+    border-radius: 50%;
+    margin-left: 10px;
+    margin-right: 10px;
+    font-size: 2rem;
+}
+
+.previous, .next{
+    cursor: pointer;
+    font-size: 1.5rem;
+    color: white;
+}
+
+
+@media screen and (max-width: 992px){
+    .menuSection{
+        display: none;
+    }
+
+    .card-list{
+        width:100%;
+    }
+}
