@@ -20,7 +20,8 @@ const app = new Vue({
         inputUser:'',
         searchParam: '',
         currentPage: 1,
-        totalPages: 0
+        totalPages: 0,
+        prevSection: ''
     },
     methods: {
         //Search both movies and Tv Series
@@ -115,7 +116,10 @@ const app = new Vue({
         },
         //Define what's selected section and save it in selectedSection
         selectSection(section){
+            //Reset to 1st page at change section
+            this.prevSection = this.selectedSection;
             this.selectedSection = section;
+            (this.prevSection != this.selectedSection) ? this.currentPage = 1 : '';
             switch(this.selectedSection) {
                 case this.menuSections[0]:
                     this.searchDailyTrending();
